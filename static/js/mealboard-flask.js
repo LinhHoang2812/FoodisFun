@@ -92,6 +92,7 @@ mealsContainer.addEventListener("click", (e) => {
 
 ingredientsSelection.addEventListener("click", (e) => {
   if (e.target.classList.contains("fa-circle-plus")) {
+    e.target.style.color = "rgb(198, 160, 160)";
     const item = e.target.parentElement.parentElement.textContent;
     addToGroceryList(item);
   }

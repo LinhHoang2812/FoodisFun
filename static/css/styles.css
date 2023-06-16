@@ -808,7 +808,7 @@ body {
 .meal-summary {
   display: flex;
   flex-direction: column;
-  row-gap: 2rem !important;
+  row-gap: 2rem;
 }
 
 .meal-img img {
@@ -870,6 +870,11 @@ body {
   .btn-container {
     flex-direction: column;
   }
+  .meal-summary {
+    display: grid;
+    grid-template-columns: 1fr;
+    row-gap: 2rem;
+  }
 
   .meal-btns {
     flex-direction: column;
@@ -925,6 +930,10 @@ body {
     margin-right: 1rem;
     font-size: 1.5rem;
   }
+
+  /* .add-to-list i:focus {
+    color: rgb(198, 160, 160);
+  } */
   .shopping-list {
     display: block;
   }
