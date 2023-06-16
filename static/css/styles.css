@@ -808,7 +808,7 @@ body {
 .meal-summary {
   display: flex;
   flex-direction: column;
-  row-gap: 2rem;
+  row-gap: 2rem !important;
 }
 
 .meal-img img {
@@ -876,7 +876,7 @@ body {
   }
   .single-meal {
     grid-template-columns: 1fr;
-    row-gap: 0.5rem;
+    row-gap: 1rem;
   }
   .meal-img img {
     height: 250px;
@@ -907,9 +907,6 @@ body {
   .ingredient-popup li {
     margin-bottom: 1.5rem;
   }
-  .ingredient-popup i {
-    font-size: 1rem;
-  }
 
   .ingredient-popup::before {
     display: none;
@@ -924,12 +921,9 @@ body {
     margin-bottom: 1rem;
   }
 
-  .ingredient-popup li {
-    margin-bottom: 1rem;
-  }
   .ingredient-popup i {
     margin-right: 1rem;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
   }
   .shopping-list {
     display: block;
