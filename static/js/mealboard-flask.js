@@ -13,7 +13,14 @@ const popupCloseBtn = document.querySelector(".popup-close-btn");
 
 let count = 0;
 displayClearAll();
-allOut.addEventListener("click", deleteAllItems);
+allOut.addEventListener("click", () => {
+  const children = [...groceryContainer.children];
+  children.forEach((child) => {
+    groceryContainer.removeChild(child);
+  });
+  allOut.style.display = "none";
+  deleteAllItems();
+});
 
 /////// show all ingredients ////////
 mealsContainer.addEventListener("mouseover", (e) => {
@@ -31,9 +38,26 @@ mealsContainer.addEventListener("mouseover", (e) => {
     const simpleList = JSON.parse(e.target.dataset.list);
     ingredientsSelection.innerHTML = simpleList
       .map((item) => {
-        return `<li><button class="add-to-list"><i class="fa-solid fa-circle-plus"></i></button>${item}</li>`;
+        return `<li><button class="add-to-list"><i class="fa-solid fa-circle-plus"></i></button>${
+          item[0].toUpperCase() + item.slice(1).toLowerCase()
+        }</li>`;
       })
       .join("");
+    //change color when item already is grocery list
+    let list = [...ingredientsSelection.querySelectorAll("li")];
+
+    let groceryList = [
+      ...groceryContainer.querySelectorAll(".grocery-item span"),
+    ];
+    groceryList = groceryList.map((item) => item.textContent);
+
+    list.forEach((item) => {
+      if (groceryList.includes(item.textContent)) {
+        const plus = item.querySelector(".fa-circle-plus");
+        plus.style.color = "rgb(198, 160, 160)";
+      }
+    });
+
     popupCloseBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       popup.style.display = "none";
@@ -58,9 +82,25 @@ mealsContainer.addEventListener("click", (e) => {
     const simpleList = JSON.parse(e.target.dataset.list);
     ingredientsSelection.innerHTML = simpleList
       .map((item) => {
-        return `<li><button class="add-to-list"><i class="fa-solid fa-circle-plus"></i></button>${item}</li>`;
+        return `<li><button class="add-to-list"><i class="fa-solid fa-circle-plus"></i></button>${
+          item[0].toUpperCase() + item.slice(1).toLowerCase()
+        }</li>`;
       })
       .join("");
+    let list = [...ingredientsSelection.querySelectorAll("li")];
+
+    let groceryList = [
+      ...groceryContainer.querySelectorAll(".grocery-item span"),
+    ];
+    groceryList = groceryList.map((item) => item.textContent);
+
+    list.forEach((item) => {
+      if (groceryList.includes(item.textContent)) {
+        const plus = item.querySelector(".fa-circle-plus");
+        plus.style.color = "rgb(198, 160, 160)";
+      }
+    });
+
     popupCloseBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       popup.style.display = "none";
@@ -81,9 +121,21 @@ mealsContainer.addEventListener("click", (e) => {
       e.target.parentElement.parentElement.parentElement.dataset.id
     );
   } else if (e.target.classList.contains("plus-all")) {
+    let groceryList = [
+      ...groceryContainer.querySelectorAll(".grocery-item span"),
+    ];
+    groceryList = groceryList.map((item) => item.textContent);
+
     const simpleList = JSON.parse(e.target.parentElement.dataset.list);
+
     simpleList.forEach((item) => {
-      addToGroceryList(item);
+      if (
+        !groceryList.includes(
+          item[0].toUpperCase() + item.slice(1).toLowerCase()
+        )
+      ) {
+        addToGroceryList(item[0].toUpperCase() + item.slice(1).toLowerCase());
+      }
     });
   }
 });
@@ -91,10 +143,12 @@ mealsContainer.addEventListener("click", (e) => {
 /////// add each ingredient seperately ////////
 
 ingredientsSelection.addEventListener("click", (e) => {
-  if (e.target.classList.contains("fa-circle-plus")) {
-    e.target.style.color = "rgb(198, 160, 160)";
-    const item = e.target.parentElement.parentElement.textContent;
-    addToGroceryList(item);
+  if (e.target.style.color !== "rgb(198, 160, 160)") {
+    if (e.target.classList.contains("fa-circle-plus")) {
+      e.target.style.color = "rgb(198, 160, 160)";
+      const item = e.target.parentElement.parentElement.textContent;
+      addToGroceryList(item);
+    }
   }
 });
 
@@ -168,28 +222,20 @@ function displayClearAll() {
     return;
   }
   allOut.style.display = "block";
-  clearAll();
 }
 
-function clearAll() {
-  allOut.addEventListener("click", () => {
-    const children = [...groceryContainer.children];
-    children.forEach((child) => {
-      groceryContainer.removeChild(child);
-    });
-    allOut.style.display = "none";
-  });
-}
+// function clearAll() {
 
-function addToGroceryList(item) {
-  count++;
+// }
+
+async function addToGroceryList(item) {
   const article = document.createElement("article");
   article.classList.add("grocery-item");
   const attribute = document.createAttribute("data-id");
   const id = (new Date().getTime() + count).toString();
   attribute.value = id;
   article.setAttributeNode(attribute);
-  article.innerHTML = `<div class="single-grocery-item"> 
+  article.innerHTML = `<div class="single-grocery-item">
         <div>
         <button class="done"></button>
         <span>${item}</span>
@@ -207,7 +253,7 @@ function addToGroceryList(item) {
       deleteFromGroceryDB(id);
     } else {
       e.currentTarget.classList.remove("bought");
-      addToGroceryDB(id, item);
+      const add = addToGroceryDB(id, item);
     }
   });
 
@@ -242,7 +288,10 @@ function addMoreIngredient() {
   groceryContainer.prepend(article);
   const input = article.querySelector("input");
   input.addEventListener("change", () => {
-    addToGroceryDB(id, input.value);
+    addToGroceryDB(
+      id,
+      input.value[0].toUpperCase() + input.value.slice(1).toLowerCase()
+    );
   });
 
   const doneBtn = article.querySelector(".done");
@@ -254,7 +303,10 @@ function addMoreIngredient() {
       deleteFromGroceryDB(id);
     } else {
       e.currentTarget.classList.remove("bought");
-      addToGroceryDB(id, input.value);
+      addToGroceryDB(
+        id,
+        input.value[0].toUpperCase() + input.value.slice(1).toLowerCase()
+      );
     }
   });
 
@@ -268,12 +320,22 @@ function addMoreIngredient() {
 }
 
 function addAllRecipesToList() {
+  let groceryList = [
+    ...groceryContainer.querySelectorAll(".grocery-item span"),
+  ];
+  groceryList = groceryList.map((item) => item.textContent);
   const items = document.querySelectorAll(".make-it");
 
-  const allIngredients = items.forEach((item) => {
+  items.forEach((item) => {
     const list = JSON.parse(item.getAttribute("data-list"));
-    list.forEach((ingredient) => {
-      addToGroceryList(ingredient);
+    list.forEach((ingre) => {
+      if (
+        !groceryList.includes(
+          ingre[0].toUpperCase() + ingre.slice(1).toLowerCase()
+        )
+      ) {
+        addToGroceryList(ingre[0].toUpperCase() + ingre.slice(1).toLowerCase());
+      }
     });
   });
 }
@@ -289,8 +351,20 @@ function addToGroceryDB(id, item) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ id, item }),
+  }).then((res) => {
+    return res.text();
   });
 }
+
+// async function addToGroceryDB(id, item) {
+//   const response = await fetch("/save-item", {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({ id, item }),
+//   });
+//   const data = await response.text();
+//   return data;
+// }
 
 function deleteFromGroceryDB(id) {
   fetch("/delete-item", {

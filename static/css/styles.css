@@ -837,12 +837,15 @@ body {
   border: 1px solid gray;
   border-radius: 20px;
   padding: 2rem;
-  background-color: #f8ede3;
-  color: rgb(107, 54, 54);
+  background-color: white;
+  color: gray;
   transform: translateY(-50%);
   display: none;
 }
-
+.ingredient-popup i {
+  margin-right: 1rem;
+  font-size: 1.2rem;
+}
 .ingredient-popup::before {
   content: "";
   position: absolute;
@@ -850,7 +853,7 @@ body {
   height: 0;
   border-left: 10px solid transparent;
   border-right: 10px solid transparent;
-  border-bottom: 10px solid #f8ede3;
+  border-bottom: 10px solid white;
   left: -15px;
   top: 50%;
   transform: rotate(-90deg);
@@ -912,6 +915,9 @@ body {
   .ingredient-popup li {
     margin-bottom: 1.5rem;
   }
+  .ingredient-popup i {
+    font-size: 1.5rem;
+  }
 
   .ingredient-popup::before {
     display: none;
@@ -926,14 +932,6 @@ body {
     margin-bottom: 1rem;
   }
 
-  .ingredient-popup i {
-    margin-right: 1rem;
-    font-size: 1.5rem;
-  }
-
-  /* .add-to-list i:focus {
-    color: rgb(198, 160, 160);
-  } */
   .shopping-list {
     display: block;
   }

@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 secret_key = os.getenv("SECRET_KEY")
+database_url = os.getenv("DATABASE_URL")
 
 
 app = Flask(__name__)
@@ -25,12 +26,12 @@ login_manager.init_app(app)
 
 
 ## create database
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///foodfun.db"
 app.app_context().push()
+app.config["SQLALCHEMY_DATABASE_URI"] = f"{database_url}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 db = SQLAlchemy(app)
-
+# sqlite:///foodfun.db
 
 ## create tables
 class User(UserMixin,db.Model):
@@ -189,6 +190,7 @@ def get_mealboard():
         return redirect(url_for("mealboard_login"))
     save_recipes = Recipes.query.filter_by(user_id= current_user.get_id()).all()
     save_items = Groceries.query.filter_by(user_id= current_user.get_id()).all()
+
     return render_template("mealboard.html",recipes = save_recipes,items = save_items)
 
 @app.route('/mealboard/login',methods=["GET","POST"])
@@ -233,10 +235,11 @@ def delete_recipe():
 @app.route('/save-item',methods=["POST"])
 def save_item():
     item = request.get_json()
+    print(item)
     new_item = Groceries(item_id = item["id"],item = item["item"],users = current_user)
     db.session.add(new_item)
     db.session.commit()
-    return "save!"
+    return f"{item}"
 
 @app.route('/delete-item',methods=["POST"])
 def delete_item():
@@ -249,6 +252,7 @@ def delete_item():
 @app.route('/delete-all-items',methods=["POST"])
 def delete_all_items():
     all_items = Groceries.query.filter_by(user_id=current_user.get_id()).all()
+    print(all_items)
     for item in all_items:
         db.session.delete(item)
         db.session.commit()
