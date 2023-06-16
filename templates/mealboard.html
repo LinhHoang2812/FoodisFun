@@ -1,0 +1,103 @@
+
+{% include "header.html" %}
+
+    <!-- breadcrumb -->
+    <nav class="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Mealboard</li>
+      </ol>
+    </nav>
+
+    <section class="meal-grocery">
+      <!-- mealboard section -->
+      <div class="mealboard">
+        <h4>My Meal Board</h4>
+        <div class="btn-container">
+          <div class="meal-btns">
+            <a class="add-all-recipes">
+              Add all recipes to shopping list
+            </a>
+            <a class="clear-all-recipes">Clear all recipe</a>
+          </div>
+
+          <button class="shopping-list">
+            <i class="fa-sharp fa-solid fa-clipboard-list"></i>
+            shopping list
+          </button>
+        </div>
+        <div class="meals-container">
+          {% for recipe in recipes: %}
+          <article class="single-meal">
+          <div class="meal-img" >
+          <img src="{{recipe.image}}">
+          </div>
+          <div class="meal-summary" data-id="{{recipe.recipe_id}}">
+          <a class="meal-name" href="/recipe/{{recipe.recipe_id}}"><h4">{{recipe.name}}</h4></a>
+          <div><span class="total-ingre">{{recipe.total_ingredient}} ingredients</span> <i class="fa-solid fa-circle-info ingredients-detail" data-list="{{recipe.simple_list}}"></i></div>
+          <div><button class="make-it" data-list="{{recipe.simple_list}}"><i class="fa-solid fa-circle-plus plus-all"></i></button> <span>Add all ingredients to shopping list</span></div>
+          <div><button class="remove"><i class="fa-solid fa-trash remove"></i></button> <span>Remove recipe</span></div>
+          
+  
+          </div>
+          </article>
+
+          {% endfor %}
+        </div>
+      </div>
+      <!-- shopping list -->
+
+      <aside class="grocery-list">
+        <button class="grocery-close-btn"><i class="fas fa-times"></i></button>
+        <h4>Grocery List</h4>
+        <div class="add-more-div">
+          <button class="add-more">
+            <i class="fa-solid fa-circle-plus"></i> Add more ingredient
+          </button>
+        </div>
+        <div class="grocery-container">
+          {% for item in items: %}
+          <article class="grocery-item" data-id="{{item.item_id}}">
+          <div class="single-grocery-item"> 
+        <div>
+        <button class="done"></button>
+        <span>{{item.item}}</span>
+        </div>
+        <button class="delete"><i class="fa-solid fa-trash"></i></button>
+         </div>
+          </article>
+          
+          {% endfor %}
+        </div>
+        <div class="all-out">
+          <button class="clear-all">Clear All</button>
+        </div>
+      </aside>
+    </section>
+    <!-- ingredients popup -->
+
+    <div class="ingredient-popup">
+      <button class="popup-close-btn"><i class="fas fa-times"></i></button>
+      <h4>All ingredients</h4>
+
+
+      <div class="ingredients-selection"></div>
+    </div>
+
+    <!-- footer -->
+    {% include "footer.html" %}
+  
+
+    <!-- bootstrap javascript -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      type="module"
+      src="{{url_for('static',filename='js/nav.js')}}"
+    ></script>
+    <script src="{{url_for('static',filename='js/mealboard-flask.js')}}"></script>
+  </body>
+</html>

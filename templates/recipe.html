@@ -1,0 +1,39 @@
+
+{% include "header.html" %}
+
+    <!-- breadcrumb -->
+    <nav class="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Recipe</li>
+      </ol>
+    </nav>
+
+    <!-- single recipe section -->
+    <section class="single-recipe">
+      <div class="intro-container"></div>
+      <div class="ingredients">
+        <h4>Ingredients</h4>
+        <div class="ingredients-list"></div>
+      </div>
+      <div class="instruction">
+        <h4>Instruction</h4>
+        <div class="instruction-detail"></div>
+      </div>
+      <div class="tags">
+        <h4>Tags</h4>
+        <div class="tags-list"></div>
+      </div>
+    </section>
+
+    <!-- footer -->
+    {% include "footer.html"  %}
+    
+    <script
+      type="module"
+      src="{{url_for('static',filename='js/nav.js')}}"
+    ></script>
+    <script src="{{url_for('static',filename='js/recipe.js')}}"></script>
+  </body>
+</html>
+
