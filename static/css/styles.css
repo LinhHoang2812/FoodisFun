@@ -1003,6 +1003,12 @@ body {
   background-color: transparent;
   color: rgb(107, 54, 54);
 }
+/* .single-grocery-item span {
+  text-transform: lowercase;
+}
+.single-grocery-item span::first-letter {
+  text-transform: capitalize !important;
+} */
 .clear-all {
   width: 150px;
   height: 40px;
@@ -1034,6 +1040,9 @@ body {
   color: gray;
   text-transform: capitalize;
 }
+/* .more-input::first-letter {
+  
+} */
 
 @media screen and (max-width: 800px) {
   .meal-grocery {
@@ -1081,6 +1090,7 @@ body {
     border-radius: 50%;
     padding: 0;
   }
+
   .grocery-item {
     margin-bottom: 1.5rem;
   }

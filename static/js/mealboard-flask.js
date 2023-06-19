@@ -48,8 +48,13 @@ mealsContainer.addEventListener("mouseover", (e) => {
 
     let groceryList = [
       ...groceryContainer.querySelectorAll(".grocery-item span"),
+      ...groceryContainer.querySelectorAll(".grocery-item input"),
     ];
-    groceryList = groceryList.map((item) => item.textContent);
+    groceryList = groceryList.map((item) =>
+      item.textContent
+        ? item.textContent
+        : item.value[0].toUpperCase() + item.value.slice(1).toLowerCase()
+    );
 
     list.forEach((item) => {
       if (groceryList.includes(item.textContent)) {
@@ -91,8 +96,13 @@ mealsContainer.addEventListener("click", (e) => {
 
     let groceryList = [
       ...groceryContainer.querySelectorAll(".grocery-item span"),
+      ...groceryContainer.querySelectorAll(".grocery-item input"),
     ];
-    groceryList = groceryList.map((item) => item.textContent);
+    groceryList = groceryList.map((item) =>
+      item.textContent
+        ? item.textContent
+        : item.value[0].toUpperCase() + item.value.slice(1).toLowerCase()
+    );
 
     list.forEach((item) => {
       if (groceryList.includes(item.textContent)) {
@@ -123,31 +133,52 @@ mealsContainer.addEventListener("click", (e) => {
   } else if (e.target.classList.contains("plus-all")) {
     let groceryList = [
       ...groceryContainer.querySelectorAll(".grocery-item span"),
+      ...groceryContainer.querySelectorAll(".grocery-item input"),
     ];
-    groceryList = groceryList.map((item) => item.textContent);
+    groceryList = groceryList.map((item) =>
+      item.textContent
+        ? item.textContent
+        : item.value[0].toUpperCase() + item.value.slice(1).toLowerCase()
+    );
 
     const simpleList = JSON.parse(e.target.parentElement.dataset.list);
-
-    simpleList.forEach((item) => {
-      if (
-        !groceryList.includes(
-          item[0].toUpperCase() + item.slice(1).toLowerCase()
-        )
-      ) {
-        addToGroceryList(item[0].toUpperCase() + item.slice(1).toLowerCase());
-      }
-    });
+    addtoscreen(simpleList, groceryList);
   }
 });
 
+async function addtoscreen(list, grocerylist) {
+  const itemList = [];
+  list.forEach((item) => {
+    item = item[0].toUpperCase() + item.slice(1).toLowerCase();
+    if (!grocerylist.includes(item)) {
+      count++;
+      const id = (new Date().getTime() + count).toString();
+      itemList.push({ id: id, item: item });
+      addToGroceryList(item, id);
+    }
+  });
+  await addtodb(itemList);
+}
+
+async function addtodb(list) {
+  const j = list.length;
+  for (let i = 0; i < j; i++) {
+    // wait for the promise to resolve before advancing the for loop
+
+    await addToGroceryDB(list[i].id, list[i].item);
+  }
+}
 /////// add each ingredient seperately ////////
 
 ingredientsSelection.addEventListener("click", (e) => {
   if (e.target.style.color !== "rgb(198, 160, 160)") {
     if (e.target.classList.contains("fa-circle-plus")) {
+      count++;
+      const id = (new Date().getTime() + count).toString();
       e.target.style.color = "rgb(198, 160, 160)";
       const item = e.target.parentElement.parentElement.textContent;
-      addToGroceryList(item);
+      addToGroceryList(item, id);
+      addToGroceryDB(id, item);
     }
   }
 });
@@ -184,91 +215,39 @@ groceryCloseBtn.addEventListener("click", () => {
 /////// add all ingredients from all recipes ///////
 addAllRecipes.addEventListener("click", addAllRecipesToList);
 
+async function addAllRecipesToList() {
+  let groceryList = [
+    ...groceryContainer.querySelectorAll(".grocery-item span"),
+    ...groceryContainer.querySelectorAll(".grocery-item input"),
+  ];
+  groceryList = groceryList.map((item) =>
+    item.textContent
+      ? item.textContent
+      : item.value[0].toUpperCase() + item.value.slice(1).toLowerCase()
+  );
+  const items = document.querySelectorAll(".make-it");
+
+  const l = items.length;
+  const itemList = [];
+  for (let k = 0; k < l; k++) {
+    const list = JSON.parse(items[k].getAttribute("data-list"));
+    list.forEach((item) => {
+      item = item[0].toUpperCase() + item.slice(1).toLowerCase();
+      if (!groceryList.includes(item)) {
+        count++;
+        const id = (new Date().getTime() + count).toString();
+        itemList.push({ id: id, item: item });
+        addToGroceryList(item, id);
+      }
+    });
+  }
+  await addtodb(itemList);
+}
+
 /////// add ingredients of your choice ///////
 addMore.addEventListener("click", () => {
   addMoreIngredient();
 });
-
-/////// done and delete each item ///////
-groceryContainer.addEventListener("click", (e) => {
-  if (e.target.classList.contains("done")) {
-    if (!e.target.classList.contains("bought")) {
-      e.target.classList.add("bought");
-      deleteFromGroceryDB(
-        e.target.parentElement.parentElement.parentElement.dataset.id
-      );
-    } else {
-      e.target.classList.remove("bought");
-      addToGroceryDB(
-        e.target.parentElement.parentElement.parentElement.dataset.id,
-        e.target.nextElementSibling.textContent
-      );
-    }
-  } else if (e.target.classList.contains("fa-trash")) {
-    groceryContainer.removeChild(
-      e.target.parentElement.parentElement.parentElement
-    );
-    deleteFromGroceryDB(
-      e.target.parentElement.parentElement.parentElement.dataset.id
-    );
-  }
-});
-
-/////////////////////////// functions for grocery list //////////////
-
-function displayClearAll() {
-  if (groceryContainer.children.length == 0) {
-    allOut.style.display = "none";
-    return;
-  }
-  allOut.style.display = "block";
-}
-
-// function clearAll() {
-
-// }
-
-async function addToGroceryList(item) {
-  const article = document.createElement("article");
-  article.classList.add("grocery-item");
-  const attribute = document.createAttribute("data-id");
-  const id = (new Date().getTime() + count).toString();
-  attribute.value = id;
-  article.setAttributeNode(attribute);
-  article.innerHTML = `<div class="single-grocery-item">
-        <div>
-        <button class="done"></button>
-        <span>${item}</span>
-        </div>
-        <button class="delete"><i class="fa-solid fa-trash"></i></button>
-         </div>`;
-  groceryContainer.appendChild(article);
-
-  const doneBtn = article.querySelector(".done");
-  const deleteBtn = article.querySelector(".fa-trash");
-  doneBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    if (!e.currentTarget.classList.contains("bought")) {
-      e.currentTarget.classList.add("bought");
-      deleteFromGroceryDB(id);
-    } else {
-      e.currentTarget.classList.remove("bought");
-      const add = addToGroceryDB(id, item);
-    }
-  });
-
-  deleteBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    groceryContainer.removeChild(
-      e.currentTarget.parentElement.parentElement.parentElement
-    );
-    deleteFromGroceryDB(id);
-    displayClearAll();
-  });
-  displayClearAll();
-  addToGroceryDB(id, item);
-}
-
 function addMoreIngredient() {
   const article = document.createElement("article");
   article.classList.add("grocery-item");
@@ -319,25 +298,79 @@ function addMoreIngredient() {
   displayClearAll();
 }
 
-function addAllRecipesToList() {
-  let groceryList = [
-    ...groceryContainer.querySelectorAll(".grocery-item span"),
-  ];
-  groceryList = groceryList.map((item) => item.textContent);
-  const items = document.querySelectorAll(".make-it");
+/////// done and delete each item ///////
+groceryContainer.addEventListener("click", (e) => {
+  if (e.target.classList.contains("done")) {
+    if (!e.target.classList.contains("bought")) {
+      e.target.classList.add("bought");
+      deleteFromGroceryDB(
+        e.target.parentElement.parentElement.parentElement.dataset.id
+      );
+    } else {
+      e.target.classList.remove("bought");
+      addToGroceryDB(
+        e.target.parentElement.parentElement.parentElement.dataset.id,
+        e.target.nextElementSibling.textContent
+      );
+    }
+  } else if (e.target.classList.contains("fa-trash")) {
+    groceryContainer.removeChild(
+      e.target.parentElement.parentElement.parentElement
+    );
+    deleteFromGroceryDB(
+      e.target.parentElement.parentElement.parentElement.dataset.id
+    );
+  }
+});
 
-  items.forEach((item) => {
-    const list = JSON.parse(item.getAttribute("data-list"));
-    list.forEach((ingre) => {
-      if (
-        !groceryList.includes(
-          ingre[0].toUpperCase() + ingre.slice(1).toLowerCase()
-        )
-      ) {
-        addToGroceryList(ingre[0].toUpperCase() + ingre.slice(1).toLowerCase());
-      }
-    });
+/////////////////////////// functions for grocery list //////////////
+
+function displayClearAll() {
+  if (groceryContainer.children.length == 0) {
+    allOut.style.display = "none";
+    return;
+  }
+  allOut.style.display = "block";
+}
+
+async function addToGroceryList(item, id) {
+  const article = document.createElement("article");
+  article.classList.add("grocery-item");
+  const attribute = document.createAttribute("data-id");
+  // const id = (new Date().getTime() + count).toString();
+  attribute.value = id;
+  article.setAttributeNode(attribute);
+  article.innerHTML = `<div class="single-grocery-item">
+        <div>
+        <button class="done"></button>
+        <span>${item}</span>
+        </div>
+        <button class="delete"><i class="fa-solid fa-trash"></i></button>
+         </div>`;
+  groceryContainer.appendChild(article);
+
+  const doneBtn = article.querySelector(".done");
+  const deleteBtn = article.querySelector(".fa-trash");
+  doneBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (!e.currentTarget.classList.contains("bought")) {
+      e.currentTarget.classList.add("bought");
+      deleteFromGroceryDB(id);
+    } else {
+      e.currentTarget.classList.remove("bought");
+      addToGroceryDB(id, item);
+    }
   });
+
+  deleteBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    groceryContainer.removeChild(
+      e.currentTarget.parentElement.parentElement.parentElement
+    );
+    deleteFromGroceryDB(id);
+    displayClearAll();
+  });
+  displayClearAll();
 }
 
 function deleteAllItems() {
@@ -346,25 +379,25 @@ function deleteAllItems() {
   });
 }
 
-function addToGroceryDB(id, item) {
-  fetch("/save-item", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id, item }),
-  }).then((res) => {
-    return res.text();
-  });
-}
-
-// async function addToGroceryDB(id, item) {
-//   const response = await fetch("/save-item", {
+// function addToGroceryDB(id, item) {
+//   fetch("/save-item", {
 //     method: "POST",
 //     headers: { "Content-Type": "application/json" },
 //     body: JSON.stringify({ id, item }),
+//   }).then((res) => {
+//     return res.text();
 //   });
-//   const data = await response.text();
-//   return data;
 // }
+
+async function addToGroceryDB(id, item) {
+  const response = await fetch("/save-item", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, item }),
+  });
+  const data = await response.text();
+  return data;
+}
 
 function deleteFromGroceryDB(id) {
   fetch("/delete-item", {
