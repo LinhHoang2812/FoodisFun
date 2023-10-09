@@ -27,7 +27,7 @@ login_manager.init_app(app)
 
 ## create database
 app.app_context().push()
-app.config["SQLALCHEMY_DATABASE_URI"] = f"{database_url}"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///foodfun.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 db = SQLAlchemy(app)
